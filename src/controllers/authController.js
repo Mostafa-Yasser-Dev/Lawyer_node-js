@@ -126,8 +126,11 @@ const register = async (req, res) => {
     const token = generateToken(user._id);
     const refreshToken = generateRefreshToken();
     
+    user.refreshTokens.push({ token: refreshToken });
+
+    await user.save();
     // Add refresh token to user
-    await user.addRefreshToken(refreshToken);
+     //user.addRefreshToken(refreshToken);
 
     res.status(201).json({
       success: true,
@@ -227,7 +230,8 @@ const login = async (req, res) => {
     const refreshToken = generateRefreshToken();
     
     // Add refresh token to user
-    await user.addRefreshToken(refreshToken);
+    user.refreshTokens.push({ token: refreshToken });
+    await user.save();
 
     res.json({
       success: true,
@@ -391,6 +395,15 @@ const refreshToken = async (req, res) => {
       });
     }
 
+    // Check if refresh token exists and is not expired
+    const tokenExists = user.refreshTokens.some(rt => rt.token === refreshToken);
+    if (!tokenExists) {
+      return res.status(401).json({
+        success: false,
+        message: 'Refresh token not found or expired'
+      });
+    }
+
     // Generate new tokens
     const newToken = generateToken(user._id);
     const newRefreshToken = generateRefreshToken();
@@ -438,7 +451,8 @@ const refreshToken = async (req, res) => {
 const logoutAll = async (req, res) => {
   try {
     // Clear all refresh tokens for the user
-    await req.user.clearRefreshTokens();
+    req.user.refreshTokens = [];
+    await req.user.save();
 
     res.json({
       success: true,

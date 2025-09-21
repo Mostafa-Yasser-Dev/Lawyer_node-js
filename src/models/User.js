@@ -76,21 +76,21 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 };
 
 // Add refresh token method
-userSchema.methods.addRefreshToken = function(token) {
+userSchema.methods.addRefreshToken = async function(token) {
   this.refreshTokens.push({ token });
-  return this.save();
+  return await this.save();
 };
 
 // Remove refresh token method
-userSchema.methods.removeRefreshToken = function(token) {
+userSchema.methods.removeRefreshToken = async function(token) {
   this.refreshTokens = this.refreshTokens.filter(rt => rt.token !== token);
-  return this.save();
+  return await this.save();
 };
 
 // Clear all refresh tokens method
-userSchema.methods.clearRefreshTokens = function() {
+userSchema.methods.clearRefreshTokens = async function() {
   this.refreshTokens = [];
-  return this.save();
+  return await this.save();
 };
 
 // Check if refresh token exists
