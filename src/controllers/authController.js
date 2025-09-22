@@ -105,6 +105,14 @@ const generateRefreshToken = (id) => {
  */
 const register = async (req, res) => {
   try {
+    // Check if database is connected
+    const mongoose = require('mongoose');
+    if (mongoose.connection.readyState !== 1) {
+      console.log('Database not connected, attempting to connect...');
+      const connectDB = require('../config/database');
+      await connectDB();
+    }
+
     const { name, email, password, phone } = req.body;
 
     // Check if user already exists
@@ -197,6 +205,14 @@ const register = async (req, res) => {
  */
 const login = async (req, res) => {
   try {
+    // Check if database is connected
+    const mongoose = require('mongoose');
+    if (mongoose.connection.readyState !== 1) {
+      console.log('Database not connected, attempting to connect...');
+      const connectDB = require('../config/database');
+      await connectDB();
+    }
+
     const { email, password } = req.body;
 
     // Find user and include password for comparison

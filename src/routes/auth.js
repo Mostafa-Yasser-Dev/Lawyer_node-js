@@ -3,6 +3,7 @@ const router = express.Router();
 const { register, login, getMe, logout, refreshToken, logoutAll } = require('../controllers/authController');
 const { auth } = require('../middleware/auth');
 const { validateRegistration, validateLogin } = require('../middleware/validation');
+const { ensureDBConnection } = require('../middleware/dbConnection');
 
 /**
  * @swagger
@@ -14,12 +15,12 @@ const { validateRegistration, validateLogin } = require('../middleware/validatio
 // @route   POST /api/auth/register
 // @desc    Register user
 // @access  Public
-router.post('/register', validateRegistration, register);
+router.post('/register', ensureDBConnection, validateRegistration, register);
 
 // @route   POST /api/auth/login
 // @desc    Login user
 // @access  Public
-router.post('/login', validateLogin, login);
+router.post('/login', ensureDBConnection, validateLogin, login);
 
 // @route   GET /api/auth/me
 // @desc    Get current user
