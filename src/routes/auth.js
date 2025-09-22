@@ -5,6 +5,7 @@ const { auth } = require('../middleware/auth');
 const { validateRegistration, validateLogin } = require('../middleware/validation');
 const { ensureDBConnection } = require('../middleware/dbConnection');
 
+
 /**
  * @swagger
  * tags:
