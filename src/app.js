@@ -75,7 +75,7 @@ const swaggerOptions = {
     servers: [
       {
         url: process.env.NODE_ENV === 'production' 
-          ? 'https://your-api-domain.vercel.app' 
+          ? 'https://lawyer-node-js.vercel.app' 
           : `http://localhost:${PORT}`,
         description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server'
       }
