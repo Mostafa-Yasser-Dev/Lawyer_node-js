@@ -44,13 +44,14 @@ const User = require('../models/User');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || '7d'
+    expiresIn: process.env.JWT_EXPIRE || '15m'
   });
 };
 
-const generateRefreshToken = () => {
-  return require('crypto').randomBytes(64).toString('hex');
-};
+const generateRefreshToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '30d'
+  });};
 
 /**
  * @swagger
@@ -124,7 +125,7 @@ const register = async (req, res) => {
     });
 
     const token = generateToken(user._id);
-    const refreshToken = generateRefreshToken();
+    const refreshToken = generateRefreshToken(user._id);
     
     user.refreshTokens.push({ token: refreshToken });
 
@@ -227,7 +228,7 @@ const login = async (req, res) => {
     await user.save();
 
     const token = generateToken(user._id);
-    const refreshToken = generateRefreshToken();
+    const refreshToken = generateRefreshToken(user._id);
     
     // Add refresh token to user
     user.refreshTokens.push({ token: refreshToken });
@@ -406,11 +407,12 @@ const refreshToken = async (req, res) => {
 
     // Generate new tokens
     const newToken = generateToken(user._id);
-    const newRefreshToken = generateRefreshToken();
+    const newRefreshToken = generateRefreshToken(user._id);
 
     // Remove old refresh token and add new one
-    await user.removeRefreshToken(refreshToken);
-    await user.addRefreshToken(newRefreshToken);
+    user.refreshTokens = user.refreshTokens.filter(rt => rt.token !== refreshToken);
+    user.refreshTokens.push({ token: newRefreshToken });
+    await user.save();
 
     res.json({
       success: true,
