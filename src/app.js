@@ -34,7 +34,14 @@ if (!process.env.BCRYPT_ROUNDS) {
 }
 
 // Connect to MongoDB
-connectDB();
+(async () => {
+  try {
+    await connectDB();
+    console.log('📦 MongoDB Connected successfully');
+  } catch (error) {
+    console.error('❌ MongoDB connection failed:', error.message);
+  }
+})();
 
 // Security middleware
 app.use(helmet());
@@ -161,7 +168,7 @@ app.use('*', (req, res) => {
 
 // Error handling middleware
 app.use(errorHandler);
-console.log('MongoDB connected');
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
