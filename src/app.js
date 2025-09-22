@@ -34,7 +34,7 @@ if (!process.env.BCRYPT_ROUNDS) {
 }
 
 // Connect to MongoDB
-//connectDB();
+connectDB();
 
 // Security middleware
 app.use(helmet());
@@ -161,11 +161,9 @@ app.use('*', (req, res) => {
 
 // Error handling middleware
 app.use(errorHandler);
-await connectDB();
 console.log('MongoDB connected');
 // Start server
-app.listen(PORT, async () => {
-  await connectDB();
+app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
 });
