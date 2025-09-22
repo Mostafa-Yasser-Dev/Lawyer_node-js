@@ -123,6 +123,7 @@ const register = async (req, res) => {
       password,
       phone
     });
+    
 
     const token = generateToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
