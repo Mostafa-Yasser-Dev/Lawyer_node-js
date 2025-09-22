@@ -141,7 +141,7 @@ app.get('/test-db', async (req, res) => {
       success: true,
       message: 'Database connection test',
       connectionState: states[connectionState],
-      mongoURI: process.env.MONGODB_URI ? 'Set' : 'Not set',
+      mongoURI: process.env.MONGO_DB_URI ? 'Set' : 'Not set',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
