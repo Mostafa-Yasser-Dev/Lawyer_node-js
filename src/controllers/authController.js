@@ -142,6 +142,8 @@ const register = async (req, res) => {
       user
     });
   } catch (error) {
+    console.error('Registration error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Error registering user',
@@ -243,6 +245,8 @@ const login = async (req, res) => {
       user
     });
   } catch (error) {
+    console.error('Login error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Error during login',

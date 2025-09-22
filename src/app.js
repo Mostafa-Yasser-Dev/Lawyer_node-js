@@ -136,7 +136,7 @@ app.get('/test-db', async (req, res) => {
       2: 'connecting',
       3: 'disconnecting'
     };
-    
+
     res.json({
       success: true,
       message: 'Database connection test',
@@ -145,9 +145,38 @@ app.get('/test-db', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
+    console.error('Database test error:', error);
     res.status(500).json({
       success: false,
       message: 'Database test failed',
+      error: error.message
+    });
+  }
+});
+
+// Simple test endpoint for debugging
+app.get('/test-register', async (req, res) => {
+  try {
+    const User = require('./models/User');
+    console.log('Testing User model...');
+    
+    // Test if we can create a user (without saving)
+    const testUser = new User({
+      name: 'Test User',
+      email: 'test@example.com',
+      password: 'testpassword'
+    });
+    
+    res.json({
+      success: true,
+      message: 'User model test successful',
+      userFields: Object.keys(testUser.toObject())
+    });
+  } catch (error) {
+    console.error('User model test error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'User model test failed',
       error: error.message
     });
   }
