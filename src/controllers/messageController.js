@@ -313,6 +313,33 @@ const sendMessage = async (req, res) => {
       .populate('sender', 'name avatar')
       .populate('receiver', 'name avatar');
 
+    // Emit real-time message via Socket.IO
+    const io = req.app.get('io');
+    if (io) {
+      const roomName = [senderId, receiverId].sort().join('_');
+      
+      // Emit to the conversation room
+      io.to(roomName).emit('new_message', {
+        id: message._id,
+        senderId: senderId,
+        recipientId: receiverId,
+        content: content,
+        messageType: messageType,
+        timestamp: message.createdAt,
+        isRead: false,
+        sender: populatedMessage.sender,
+        receiver: populatedMessage.receiver
+      });
+
+      // Emit notification to recipient if they're not in the room
+      io.to(`user_${receiverId}`).emit('message_notification', {
+        senderId: senderId,
+        content: content,
+        timestamp: message.createdAt,
+        messageId: message._id
+      });
+    }
+
     res.status(201).json({
       success: true,
       message: 'Message sent successfully',
@@ -488,6 +515,17 @@ const markAsRead = async (req, res) => {
     message.isRead = true;
     message.readAt = new Date();
     await message.save();
+
+    // Emit real-time read status via Socket.IO
+    const io = req.app.get('io');
+    if (io) {
+      // Notify sender that message was read
+      io.to(`user_${message.sender}`).emit('message_read', {
+        messageId: messageId,
+        readBy: userId,
+        timestamp: message.readAt
+      });
+    }
 
     res.json({
       success: true,
