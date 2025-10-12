@@ -392,6 +392,15 @@ dependencies:
   flutter_dotenv: ^5.1.0
   socket_io_client: ^2.0.3+1
   flutter_local_notifications: ^16.3.2
+  
+  # Deep linking
+  url_launcher: ^6.2.1
+  uni_links: ^0.5.1
+  app_links: ^3.4.2
+  share_plus: ^7.2.1
+  
+  # Firebase Dynamic Links (optional)
+  firebase_dynamic_links: ^4.3.3
 
 dev_dependencies:
   flutter_test:
@@ -1454,6 +1463,157 @@ class MyApp extends StatelessWidget {
     ],
   );
 }
+```
+
+---
+
+## 🔗 Deep Linking Setup
+
+### Android Configuration
+
+#### Update `android/app/src/main/AndroidManifest.xml`
+```xml
+<activity
+    android:name=".MainActivity"
+    android:exported="true"
+    android:launchMode="singleTop">
+    
+    <!-- App Links -->
+    <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="https" android:host="lawyerservices.app" />
+    </intent-filter>
+    
+    <!-- Custom URL Scheme -->
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="lawyerservices" />
+    </intent-filter>
+</activity>
+```
+
+### iOS Configuration
+
+#### Update `ios/Runner/Info.plist`
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+    <dict>
+        <key>CFBundleURLName</key>
+        <string>com.lawyerservices.app</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>lawyerservices</string>
+        </array>
+    </dict>
+</array>
+
+<key>com.apple.developer.associated-domains</key>
+<array>
+    <string>applinks:lawyerservices.app</string>
+</array>
+```
+
+### Deep Link Service
+
+#### Create `lib/services/deep_link_service.dart`
+```dart
+import 'package:app_links/app_links.dart';
+import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
+
+class DeepLinkService {
+  static final DeepLinkService _instance = DeepLinkService._internal();
+  factory DeepLinkService() => _instance;
+  DeepLinkService._internal();
+
+  final AppLinks _appLinks = AppLinks();
+  StreamSubscription<Uri>? _linkSubscription;
+  GoRouter? _router;
+
+  void initialize(GoRouter router) {
+    _router = router;
+    _listenToLinks();
+  }
+
+  void _listenToLinks() {
+    _linkSubscription = _appLinks.uriLinkStream.listen((Uri uri) {
+      _handleDeepLink(uri);
+    });
+  }
+
+  void _handleDeepLink(Uri uri) {
+    final path = uri.path;
+    final queryParams = uri.queryParameters;
+    
+    switch (path) {
+      case '/service':
+        final serviceId = queryParams['id'];
+        if (serviceId != null) {
+          _router?.go('/service/$serviceId');
+        }
+        break;
+      case '/chat':
+        final userId = queryParams['user'];
+        if (userId != null) {
+          _router?.go('/chat/$userId');
+        }
+        break;
+      case '/lawyer':
+        final lawyerId = queryParams['id'];
+        if (lawyerId != null) {
+          _router?.go('/lawyer/$lawyerId');
+        }
+        break;
+      default:
+        _router?.go('/');
+    }
+  }
+
+  // Generate shareable links
+  String generateServiceLink(String serviceId) {
+    return 'https://lawyerservices.app/service?id=$serviceId';
+  }
+
+  String generateChatLink(String userId) {
+    return 'https://lawyerservices.app/chat?user=$userId';
+  }
+
+  // Share content
+  Future<void> shareService(String serviceId, String title, String description) async {
+    final link = generateServiceLink(serviceId);
+    final shareText = '$title\n\n$description\n\n$link';
+    await Share.share(shareText);
+  }
+}
+```
+
+### Supported Deep Link URLs
+
+```
+# App Navigation
+https://lawyerservices.app/
+https://lawyerservices.app/login
+https://lawyerservices.app/home
+
+# Services
+https://lawyerservices.app/services
+https://lawyerservices.app/service?id=SERVICE_ID
+
+# Chat/Messaging
+https://lawyerservices.app/chat?user=USER_ID
+
+# Lawyer Profiles
+https://lawyerservices.app/lawyer?id=LAWYER_ID
+
+# Custom URL Schemes
+lawyerservices://service/SERVICE_ID
+lawyerservices://chat/USER_ID
+lawyerservices://lawyer/LAWYER_ID
 ```
 
 ---

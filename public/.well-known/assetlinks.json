@@ -1,0 +1,11 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.example.lawyer_app",
+    "sha256_cert_fingerprints": [
+      "3C:2A:68:C4:A3:5B:34:B6:44:AD:60:15:EA:5C:F1:2D:32:82:54:0C:C0:E3:1D:AB:48:46:A0:92:57:18:DF:19",
+      "3C:2A:68:C4:A3:5B:34:B6:44:AD:60:15:EA:5C:F1:2D:32:82:54:0C:C0:E3:1D:AB:48:46:A0:92:57:18:DF:19"
+    ]
+  }
+}]

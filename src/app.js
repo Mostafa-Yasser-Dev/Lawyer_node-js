@@ -18,6 +18,7 @@ const userRoutes = require('./routes/user');
 const lawyerRoutes = require('./routes/lawyer');
 const serviceRoutes = require('./routes/service');
 const messageRoutes = require('./routes/message');
+const wellknownRoutes = require('./routes/wellknown');
 
 const app = express();
 const server = http.createServer(app);
@@ -125,6 +126,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/lawyers', lawyerRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/.well-known', wellknownRoutes);
 
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
